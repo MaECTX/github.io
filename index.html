@@ -12,38 +12,58 @@
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #e0ece9; /* verde bem claro */
       margin: 0;
-      padding: 40px 20px 80px; /* espaço pra rodapé */
+      padding: 40px 20px 80px;
       display: flex;
       justify-content: center;
       align-items: flex-start;
       min-height: 100vh;
       color: #1f3a3d; /* azul escuro */
       position: relative;
+
+      /* Fundo floresta eucalipto simples */
+      background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60');
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
+      /* Camada escurecida para melhor leitura */
+      background-color: rgba(32, 48, 32, 0.4);
+      background-blend-mode: multiply;
     }
 
     .container {
-      background: #fff;
+      background: rgba(255, 255, 255, 0.95);
       padding: 30px 40px;
       border-radius: 12px;
       max-width: 420px;
       width: 100%;
       box-shadow: 0 6px 15px rgba(31, 58, 61, 0.2);
       transition: box-shadow 0.3s ease;
+      backdrop-filter: saturate(180%) blur(8px);
+      -webkit-backdrop-filter: saturate(180%) blur(8px);
     }
     .container:hover {
       box-shadow: 0 8px 20px rgba(31, 58, 61, 0.3);
     }
 
     h1 {
-      margin-bottom: 30px;
+      margin-bottom: 8px;
       font-weight: 700;
       color: #174a4d; /* azul escuro */
       text-align: center;
       font-size: 1.8rem;
       letter-spacing: 1px;
       text-shadow: 1px 1px 2px #a2c2bf;
+    }
+
+    .instructions {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #2f5e59;
+      margin-bottom: 25px;
+      line-height: 1.4;
+      text-align: center;
+      user-select: none;
     }
 
     label {
@@ -64,29 +84,27 @@
       transition: border-color 0.3s ease;
       outline-offset: 2px;
       color: #174a4d;
-      background-color: #fff; /* fundo branco para selects e inputs */
+      background-color: #fff;
     }
     select:focus,
     input[type="number"]:focus {
-      border-color: #17696a; /* tom de verde-azulado */
+      border-color: #17696a;
       outline: none;
       box-shadow: 0 0 8px rgba(23, 105, 106, 0.5);
     }
 
-    /* Botões TIPO e MERCADO com fundo branco */
     select#tipo,
     select#mercado {
       cursor: pointer;
       font-weight: 600;
     }
 
-    /* Contêiner para inputs com unidade mm */
     .input-unit {
       position: relative;
     }
 
     .input-unit input[type="number"] {
-      padding-right: 50px; /* espaço para o texto "mm" */
+      padding-right: 50px;
     }
 
     .input-unit span.unit {
@@ -102,11 +120,17 @@
       font-family: Arial, sans-serif;
     }
 
-    button {
+    .buttons {
       margin-top: 25px;
-      width: 100%;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    button {
+      flex: 1;
       padding: 14px;
-      background-color: #2f7c72; /* verde azulado */
+      background-color: #2f7c72;
       border: none;
       border-radius: 10px;
       font-size: 1.1rem;
@@ -124,6 +148,14 @@
       background-color: #1f554c;
       box-shadow: 0 6px 12px rgba(31, 85, 76, 0.6);
     }
+    button.reset {
+      background-color: #a33f3f;
+      box-shadow: 0 4px 8px rgba(163, 63, 63, 0.5);
+    }
+    button.reset:hover {
+      background-color: #6b2828;
+      box-shadow: 0 6px 12px rgba(107, 40, 40, 0.7);
+    }
 
     #resultado {
       margin-top: 30px;
@@ -136,16 +168,16 @@
       justify-content: center;
       align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
+      color: #1f3a3d;
     }
 
-    /* Ícones aprovados/reprovados inline SVG via CSS */
     .icon {
       width: 24px;
       height: 24px;
       flex-shrink: 0;
     }
 
-    /* Rodapé fixo na parte inferior */
     footer {
       position: fixed;
       bottom: 0;
@@ -162,6 +194,8 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       user-select: none;
       z-index: 999;
+      flex-wrap: wrap;
+      gap: 6px;
     }
 
     @media (max-width: 480px) {
@@ -171,9 +205,17 @@
       h1 {
         font-size: 1.5rem;
       }
+      .instructions {
+        font-size: 0.85rem;
+        margin-bottom: 20px;
+      }
+      .buttons {
+        flex-direction: column;
+      }
       button {
         font-size: 1rem;
         padding: 12px;
+        width: 100%;
       }
       footer {
         flex-direction: column;
@@ -193,6 +235,10 @@
 
   <div class="container">
     <h1>Verificação de Esquadro e Retilinidade</h1>
+    <div class="instructions">
+      Para <strong>esquadro</strong>, usar a dimensão da <strong>LARGURA</strong>.<br/>
+      Para <strong>retilinidade</strong>, usar a dimensão do <strong>COMPRIMENTO</strong>.
+    </div>
 
     <label for="tipo">Escolha o tipo:</label>
     <select id="tipo">
@@ -218,9 +264,10 @@
       <span class="unit">mm</span>
     </div>
 
-    <button onclick="calcular()">
-      Calcular
-    </button>
+    <div class="buttons">
+      <button onclick="calcular()">Calcular</button>
+      <button class="reset" onclick="resetar()">Zerar</button>
+    </div>
 
     <div id="resultado"></div>
   </div>
@@ -262,7 +309,6 @@
       let limite = mercado === 'interno' ? 2.55 : 1.65;
       let aprovado = resultado <= limite;
 
-      // Formatar com 2 casas decimais e vírgula
       let resultadoFormatado = resultado.toFixed(2).replace('.', ',');
 
       resultadoDiv.innerHTML = `
@@ -272,6 +318,14 @@
         </span>
         ${aprovado ? iconAprovado : iconReprovado}
       `;
+    }
+
+    function resetar() {
+      document.getElementById('tipo').value = 'esquadro';
+      document.getElementById('mercado').value = 'interno';
+      document.getElementById('desvio').value = '';
+      document.getElementById('dimensao').value = '';
+      document.getElementById('resultado').innerHTML = '';
     }
   </script>
 
