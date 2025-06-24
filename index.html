@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -58,3 +59,31 @@
   <div id="resultado"></div>
 
   <script>
+    function calcular() {
+      const tipo = document.getElementById('tipo').value;
+      const mercado = document.getElementById('mercado').value;
+      const desvio = parseFloat(document.getElementById('desvio').value);
+      const dimensao = parseFloat(document.getElementById('dimensao').value);
+      const resultadoDiv = document.getElementById('resultado');
+
+      if (isNaN(desvio) || isNaN(dimensao) || dimensao <= 0) {
+        resultadoDiv.innerText = 'Por favor, insira valores válidos.';
+        return;
+      }
+
+      let resultado = 0;
+      if (tipo === 'esquadro') {
+        resultado = (desvio / 2) / dimensao * 1000;
+      } else if (tipo === 'retilinidade') {
+        resultado = desvio / dimensao * 1000;
+      }
+
+      let limite = mercado === 'interno' ? 2.55 : 1.65;
+      let status = resultado <= limite ? 'APROVADO ✅' : 'REPROVADO ❌';
+
+      resultadoDiv.innerText = `Resultado: ${resultado.toFixed(3)} mm/m — ${status}`;
+    }
+  </script>
+
+</body>
+</html>
