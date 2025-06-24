@@ -1,64 +1,245 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Verificação de Esquadro e Retilinidade</title>
   <style>
+    /* Reset básico */
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background-color: #f2f2f2;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #e0ece9; /* verde bem claro */
+      margin: 0;
+      padding: 40px 20px 80px; /* espaço pra rodapé */
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      color: #1f3a3d; /* azul escuro */
+      position: relative;
     }
+
+    .container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 6px 15px rgba(31, 58, 61, 0.2);
+      transition: box-shadow 0.3s ease;
+    }
+    .container:hover {
+      box-shadow: 0 8px 20px rgba(31, 58, 61, 0.3);
+    }
+
     h1 {
-      color: #333;
+      margin-bottom: 30px;
+      font-weight: 700;
+      color: #174a4d; /* azul escuro */
+      text-align: center;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 2px #a2c2bf;
     }
+
     label {
       display: block;
-      margin-top: 15px;
-      font-weight: bold;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2f5e59; /* verde azulado escuro */
+      font-size: 0.95rem;
     }
-    select, input, button {
-      margin-top: 5px;
-      padding: 10px;
+
+    select,
+    input[type="number"] {
       width: 100%;
-      max-width: 300px;
+      padding: 12px 14px;
+      border: 2px solid #2f5e59;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      outline-offset: 2px;
+      color: #174a4d;
+      background-color: #fff; /* fundo branco para selects e inputs */
     }
+    select:focus,
+    input[type="number"]:focus {
+      border-color: #17696a; /* tom de verde-azulado */
+      outline: none;
+      box-shadow: 0 0 8px rgba(23, 105, 106, 0.5);
+    }
+
+    /* Botões TIPO e MERCADO com fundo branco */
+    select#tipo,
+    select#mercado {
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* Contêiner para inputs com unidade mm */
+    .input-unit {
+      position: relative;
+    }
+
+    .input-unit input[type="number"] {
+      padding-right: 50px; /* espaço para o texto "mm" */
+    }
+
+    .input-unit span.unit {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-weight: 600;
+      color: #2f5e59;
+      user-select: none;
+      pointer-events: none;
+      font-size: 0.9rem;
+      font-family: Arial, sans-serif;
+    }
+
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 14px;
+      background-color: #2f7c72; /* verde azulado */
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 8px rgba(47, 124, 114, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    button:hover {
+      background-color: #1f554c;
+      box-shadow: 0 6px 12px rgba(31, 85, 76, 0.6);
+    }
+
     #resultado {
-      margin-top: 20px;
-      font-size: 1.2em;
-      font-weight: bold;
+      margin-top: 30px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-align: center;
+      min-height: 2em;
+      user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Ícones aprovados/reprovados inline SVG via CSS */
+    .icon {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    /* Rodapé fixo na parte inferior */
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #174a4d;
+      color: #a2c2bf;
+      font-size: 0.85rem;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -2px 8px rgba(23, 74, 77, 0.7);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      user-select: none;
+      z-index: 999;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 25px 20px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      button {
+        font-size: 1rem;
+        padding: 12px;
+      }
+      footer {
+        flex-direction: column;
+        gap: 5px;
+        font-size: 0.8rem;
+        text-align: center;
+      }
+      #resultado {
+        flex-direction: column;
+        gap: 5px;
+        font-size: 1.2rem;
+      }
     }
   </style>
 </head>
 <body>
 
-  <h1>Verificação de Esquadro e Retilinidade</h1>
+  <div class="container">
+    <h1>Verificação de Esquadro e Retilinidade</h1>
 
-  <label for="tipo">Escolha o tipo:</label>
-  <select id="tipo">
-    <option value="esquadro">Esquadro</option>
-    <option value="retilinidade">Retilinidade</option>
-  </select>
+    <label for="tipo">Escolha o tipo:</label>
+    <select id="tipo">
+      <option value="esquadro">Esquadro</option>
+      <option value="retilinidade">Retilinidade</option>
+    </select>
 
-  <label for="mercado">Escolha o mercado:</label>
-  <select id="mercado">
-    <option value="interno">Mercado Interno</option>
-    <option value="externo">Mercado Externo</option>
-  </select>
+    <label for="mercado">Escolha o mercado:</label>
+    <select id="mercado">
+      <option value="interno">Mercado Interno</option>
+      <option value="externo">Mercado Externo</option>
+    </select>
 
-  <label for="desvio">Desvio (0 a 99):</label>
-  <input type="number" id="desvio" min="0" max="99">
+    <label for="desvio">Desvio (0 a 99):</label>
+    <div class="input-unit">
+      <input type="number" id="desvio" min="0" max="99" placeholder="Ex: 10" />
+      <span class="unit">mm</span>
+    </div>
 
-  <label for="dimensao">Dimensão (0 a 8000):</label>
-  <input type="number" id="dimensao" min="0" max="8000">
+    <label for="dimensao">Dimensão (0 a 8000):</label>
+    <div class="input-unit">
+      <input type="number" id="dimensao" min="0" max="8000" placeholder="Ex: 5000" />
+      <span class="unit">mm</span>
+    </div>
 
-  <button onclick="calcular()">Calcular</button>
+    <button onclick="calcular()">
+      Calcular
+    </button>
 
-  <div id="resultado"></div>
+    <div id="resultado"></div>
+  </div>
+
+  <footer>
+    <div>Ferramenta não oficial, auxiliar para consulta operacional</div>
+    <div>Desenvolvido por Matheus Felipe</div>
+  </footer>
 
   <script>
+    const iconAprovado = `
+      <svg class="icon" viewBox="0 0 24 24" fill="#2e7d32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/>
+      </svg>`;
+    const iconReprovado = `
+      <svg class="icon" viewBox="0 0 24 24" fill="#d93025" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M18.3 5.71L12 12l6.3 6.29-1.42 1.42L10.59 13.41 4.29 19.71 2.88 18.3 9.17 12 2.88 5.71 4.29 4.29 10.59 10.59 16.88 4.29z"/>
+      </svg>`;
+
     function calcular() {
       const tipo = document.getElementById('tipo').value;
       const mercado = document.getElementById('mercado').value;
@@ -67,7 +248,7 @@
       const resultadoDiv = document.getElementById('resultado');
 
       if (isNaN(desvio) || isNaN(dimensao) || dimensao <= 0) {
-        resultadoDiv.innerText = 'Por favor, insira valores válidos.';
+        resultadoDiv.innerHTML = `<span style="color:#d93025;">Por favor, insira valores válidos.</span>`;
         return;
       }
 
@@ -79,9 +260,18 @@
       }
 
       let limite = mercado === 'interno' ? 2.55 : 1.65;
-      let status = resultado <= limite ? 'APROVADO ✅' : 'REPROVADO ❌';
+      let aprovado = resultado <= limite;
 
-      resultadoDiv.innerText = `Resultado: ${resultado.toFixed(3)} mm/m — ${status}`;
+      // Formatar com 2 casas decimais e vírgula
+      let resultadoFormatado = resultado.toFixed(2).replace('.', ',');
+
+      resultadoDiv.innerHTML = `
+        Resultado: ${resultadoFormatado} mm/m — 
+        <span style="color:${aprovado ? '#2e7d32' : '#d93025'}; font-weight:700;">
+          ${aprovado ? 'APROVADO ✅' : 'REPROVADO ❌'}
+        </span>
+        ${aprovado ? iconAprovado : iconReprovado}
+      `;
     }
   </script>
 
