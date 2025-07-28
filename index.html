@@ -3,331 +3,245 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Verificação de Esquadro e Retilinidade</title>
+  <title>Verificações Dimensionais - Consulta</title>
   <style>
-    /* Reset básico */
-    * {
-      box-sizing: border-box;
+    :root {
+      --verde: #2e7d32;
+      --azul-claro: #a2d5f2;
+      --fundo-card: rgba(255, 255, 255, 0.9);
+      --texto: #0a3d62;
+      --fundo-footer: rgba(0, 0, 0, 0.6);
+    }
+
+    body.dark {
+      --verde: #81c784;
+      --azul-claro: #81d4fa;
+      --fundo-card: rgba(0, 0, 0, 0.85);
+      --texto: #e3f2fd;
+      --fundo-footer: rgba(255, 255, 255, 0.2);
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      padding: 40px 20px 80px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-      color: #1f3a3d; /* azul escuro */
-      position: relative;
-
-      /* Fundo floresta eucalipto simples */
-      background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60');
-      background-repeat: no-repeat;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1950&q=80');
       background-size: cover;
-      background-position: center;
-      /* Camada escurecida para melhor leitura */
-      background-color: rgba(32, 48, 32, 0.4);
-      background-blend-mode: multiply;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: var(--texto);
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     .container {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 30px 40px;
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: var(--fundo-card);
+      padding: 20px;
       border-radius: 12px;
-      max-width: 420px;
-      width: 100%;
-      box-shadow: 0 6px 15px rgba(31, 58, 61, 0.2);
-      transition: box-shadow 0.3s ease;
-      backdrop-filter: saturate(180%) blur(8px);
-      -webkit-backdrop-filter: saturate(180%) blur(8px);
-    }
-    .container:hover {
-      box-shadow: 0 8px 20px rgba(31, 58, 61, 0.3);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
 
     h1 {
-      margin-bottom: 8px;
-      font-weight: 700;
-      color: #174a4d; /* azul escuro */
       text-align: center;
-      font-size: 1.8rem;
-      letter-spacing: 1px;
-      text-shadow: 1px 1px 2px #a2c2bf;
+      color: var(--verde);
+      margin-bottom: 10px;
     }
 
-    .instructions {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #2f5e59;
-      margin-bottom: 25px;
-      line-height: 1.4;
+    p {
       text-align: center;
-      user-select: none;
+      color: var(--texto);
+      font-size: 16px;
+      margin-bottom: 25px;
     }
 
     label {
       display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #2f5e59; /* verde azulado escuro */
-      font-size: 0.95rem;
+      margin-top: 15px;
+      font-weight: bold;
     }
 
-    select,
-    input[type="number"] {
+    input, select {
       width: 100%;
-      padding: 12px 14px;
-      border: 2px solid #2f5e59;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: border-color 0.3s ease;
-      outline-offset: 2px;
-      color: #174a4d;
-      background-color: #fff;
-    }
-    select:focus,
-    input[type="number"]:focus {
-      border-color: #17696a;
-      outline: none;
-      box-shadow: 0 0 8px rgba(23, 105, 106, 0.5);
-    }
-
-    select#tipo,
-    select#mercado {
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .input-unit {
-      position: relative;
-    }
-
-    .input-unit input[type="number"] {
-      padding-right: 50px;
-    }
-
-    .input-unit span.unit {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-weight: 600;
-      color: #2f5e59;
-      user-select: none;
-      pointer-events: none;
-      font-size: 0.9rem;
-      font-family: Arial, sans-serif;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      box-sizing: border-box;
     }
 
     .buttons {
       margin-top: 25px;
-      display: flex;
-      gap: 15px;
-      justify-content: center;
+      text-align: center;
     }
 
     button {
-      flex: 1;
-      padding: 14px;
-      background-color: #2f7c72;
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 0 10px;
       border: none;
-      border-radius: 10px;
-      font-size: 1.1rem;
-      color: #fff;
-      font-weight: 700;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 8px rgba(47, 124, 114, 0.4);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
+      background-color: var(--verde);
+      color: white;
+      transition: background-color 0.3s;
     }
+
     button:hover {
-      background-color: #1f554c;
-      box-shadow: 0 6px 12px rgba(31, 85, 76, 0.6);
-    }
-    button.reset {
-      background-color: #a33f3f;
-      box-shadow: 0 4px 8px rgba(163, 63, 63, 0.5);
-    }
-    button.reset:hover {
-      background-color: #6b2828;
-      box-shadow: 0 6px 12px rgba(107, 40, 40, 0.7);
+      background-color: #1b5e20;
     }
 
-    #resultado {
+    .reset {
+      background-color: #0288d1;
+    }
+
+    .reset:hover {
+      background-color: #0277bd;
+    }
+
+    #tolerancia, #resultado {
       margin-top: 30px;
-      font-size: 1.3rem;
-      font-weight: 700;
-      text-align: center;
-      min-height: 2em;
-      user-select: none;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      color: #1f3a3d;
+      background-color: #f4fdfb;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #cce5ff;
     }
 
-    .icon {
-      width: 24px;
-      height: 24px;
-      flex-shrink: 0;
+    body.dark #tolerancia, body.dark #resultado {
+      background-color: #1e1e1e;
+      border-color: #555;
+    }
+
+    h3 {
+      color: var(--verde);
+      margin-bottom: 10px;
     }
 
     footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background-color: #174a4d;
-      color: #a2c2bf;
-      font-size: 0.85rem;
-      padding: 12px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 -2px 8px rgba(23, 74, 77, 0.7);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      user-select: none;
-      z-index: 999;
-      flex-wrap: wrap;
-      gap: 6px;
+      text-align: center;
+      margin-top: 50px;
+      padding: 20px;
+      background-color: var(--fundo-footer);
+      color: white;
+      font-size: 14px;
     }
 
-    @media (max-width: 480px) {
-      .container {
-        padding: 25px 20px;
-      }
-      h1 {
-        font-size: 1.5rem;
-      }
-      .instructions {
-        font-size: 0.85rem;
-        margin-bottom: 20px;
-      }
-      .buttons {
-        flex-direction: column;
-      }
-      button {
-        font-size: 1rem;
-        padding: 12px;
-        width: 100%;
-      }
-      footer {
-        flex-direction: column;
-        gap: 5px;
-        font-size: 0.8rem;
-        text-align: center;
-      }
-      #resultado {
-        flex-direction: column;
-        gap: 5px;
-        font-size: 1.2rem;
-      }
+    .theme-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      font-size: 24px;
+      user-select: none;
     }
   </style>
+  <script>
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+    }
+  </script>
 </head>
 <body>
-
+  <div class="theme-toggle" onclick="toggleTheme()" title="Alternar modo claro/escuro">🌞🌚</div>
   <div class="container">
-    <h1>Verificação de Esquadro e Retilinidade</h1>
-    <div class="instructions">
-      Para <strong>esquadro</strong>, usar a dimensão da <strong>LARGURA</strong>.<br/>
-      Para <strong>retilinidade</strong>, usar a dimensão do <strong>COMPRIMENTO</strong>.
-    </div>
+    <h1>Verificações Dimensionais - Consulta</h1>
+    <p>Favor preencher as informações dimensionais presentes na etiqueta de processo e o tipo de mercado conforme programação. Para coletar os desvios de esquadro e retilinidade, realizar os procedimentos.</p>
 
-    <label for="tipo">Escolha o tipo:</label>
-    <select id="tipo">
-      <option value="esquadro">Esquadro</option>
-      <option value="retilinidade">Retilinidade</option>
-    </select>
+    <label for="largura">Largura nominal (mm):</label>
+    <input type="number" id="largura" placeholder="Ex: 1200" />
 
-    <label for="mercado">Escolha o mercado:</label>
+    <label for="comprimento">Comprimento nominal (mm):</label>
+    <input type="number" id="comprimento" placeholder="Ex: 2400" />
+
+    <label for="mercado">🌍 Escolha o mercado:</label>
     <select id="mercado">
       <option value="interno">Mercado Interno</option>
       <option value="externo">Mercado Externo</option>
     </select>
 
-    <label for="desvio">Desvio na trena (0 a 99):</label>
-    <div class="input-unit">
-      <input type="number" id="desvio" min="0" max="99" placeholder="Ex: 10" />
-      <span class="unit">mm</span>
-    </div>
+    <label for="desvioEsquadro">Desvio de esquadro (mm):</label>
+    <input type="number" id="desvioEsquadro" min="0" max="99" placeholder="Ex: 5" />
 
-    <label for="dimensao">Dimensão (0 a 8000):</label>
-    <div class="input-unit">
-      <input type="number" id="dimensao" min="0" max="8000" placeholder="Ex: 5000" />
-      <span class="unit">mm</span>
-    </div>
+    <label for="desvioRetilinidade">Desvio de retilinidade (mm):</label>
+    <input type="number" id="desvioRetilinidade" min="0" max="99" placeholder="Ex: 10" />
 
     <div class="buttons">
       <button onclick="calcular()">Calcular</button>
       <button class="reset" onclick="resetar()">Zerar</button>
     </div>
 
+    <div id="tolerancia"></div>
     <div id="resultado"></div>
   </div>
 
   <footer>
-    <div>Ferramenta não oficial, auxiliar para consulta operacional</div>
+    <div>Ferramenta não oficial, auxiliar para consulta operacional. Para exceções de especificações, favor consultar documentos internos.</div>
     <div>Desenvolvido por Matheus Felipe</div>
   </footer>
 
   <script>
-    const iconAprovado = `
-      <svg class="icon" viewBox="0 0 24 24" fill="#2e7d32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/>
-      </svg>`;
-    const iconReprovado = `
-      <svg class="icon" viewBox="0 0 24 24" fill="#d93025" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M18.3 5.71L12 12l6.3 6.29-1.42 1.42L10.59 13.41 4.29 19.71 2.88 18.3 9.17 12 2.88 5.71 4.29 4.29 10.59 10.59 16.88 4.29z"/>
-      </svg>`;
-
     function calcular() {
-      const tipo = document.getElementById('tipo').value;
+      const largura = parseFloat(document.getElementById('largura').value);
+      const comprimento = parseFloat(document.getElementById('comprimento').value);
       const mercado = document.getElementById('mercado').value;
-      const desvio = parseFloat(document.getElementById('desvio').value);
-      const dimensao = parseFloat(document.getElementById('dimensao').value);
+      const desvioEsq = parseFloat(document.getElementById('desvioEsquadro').value);
+      const desvioRet = parseFloat(document.getElementById('desvioRetilinidade').value);
       const resultadoDiv = document.getElementById('resultado');
+      const toleranciaDiv = document.getElementById('tolerancia');
 
-      if (isNaN(desvio) || isNaN(dimensao) || dimensao <= 0) {
-        resultadoDiv.innerHTML = `<span style="color:#d93025;">Por favor, insira valores válidos.</span>`;
+      if (isNaN(largura) || isNaN(comprimento)) {
+        resultadoDiv.innerHTML = `<span style='color:#d93025;'>Informe largura e comprimento nominais.</span>`;
         return;
       }
 
-      let resultado = 0;
-      if (tipo === 'esquadro') {
-        resultado = (desvio / 2) / dimensao * 1000;
-      } else if (tipo === 'retilinidade') {
-        resultado = desvio / dimensao * 1000;
+      let tolLarg = Math.round((largura / 1000) * 2);
+      let tolComp = Math.round((comprimento / 1000) * 2);
+      let minLarg = largura - tolLarg;
+      let maxLarg = largura + tolLarg;
+      let minComp = comprimento - tolComp;
+      let maxComp = comprimento + tolComp;
+
+      toleranciaDiv.innerHTML = `
+        <hr>
+        <h3>Tolerâncias - Largura e Comprimento:</h3>
+        <ul>
+          <li><strong>Largura:</strong> ${minLarg} mm a ${maxLarg} mm (±${tolLarg} mm)</li>
+          <li><strong>Comprimento:</strong> ${minComp} mm a ${maxComp} mm (±${tolComp} mm)</li>
+        </ul>
+      `;
+
+      if (isNaN(desvioEsq) || isNaN(desvioRet)) {
+        resultadoDiv.innerHTML = `<span style='color:#d93025;'>Insira desvios de esquadro e retilinidade.</span>`;
+        return;
       }
 
       let limite = mercado === 'interno' ? 2.55 : 1.65;
-      let aprovado = resultado <= limite;
-
-      let resultadoFormatado = resultado.toFixed(2).replace('.', ',');
+      let resultadoEsq = (desvioEsq / 2) / largura * 1000;
+      let resultadoRet = desvioRet / comprimento * 1000;
+      let aprovadoEsq = resultadoEsq <= limite;
+      let aprovadoRet = resultadoRet <= limite;
 
       resultadoDiv.innerHTML = `
-        Resultado: ${resultadoFormatado} mm/m — 
-        <span style="color:${aprovado ? '#2e7d32' : '#d93025'}; font-weight:700;">
-          ${aprovado ? 'APROVADO ✅' : 'REPROVADO ❌'}
-        </span>
-        ${aprovado ? iconAprovado : iconReprovado}
+        <hr>
+        <h3>Resultados - Esquadro e Retilinidade:</h3>
+        <ul>
+          <li><strong>Esquadro:</strong> ${resultadoEsq.toFixed(2).replace('.', ',')} mm/m — 
+            <span style="color:${aprovadoEsq ? '#2e7d32' : '#d93025'}; font-weight:700;">
+              ${aprovadoEsq ? 'APROVADO ✅' : 'REPROVADO ❌'}</span></li>
+          <li><strong>Retilinidade:</strong> ${resultadoRet.toFixed(2).replace('.', ',')} mm/m — 
+            <span style="color:${aprovadoRet ? '#2e7d32' : '#d93025'}; font-weight:700;">
+              ${aprovadoRet ? 'APROVADO ✅' : 'REPROVADO ❌'}</span></li>
+        </ul>
       `;
     }
 
     function resetar() {
-      document.getElementById('tipo').value = 'esquadro';
+      ['largura', 'comprimento', 'desvioEsquadro', 'desvioRetilinidade'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('mercado').value = 'interno';
-      document.getElementById('desvio').value = '';
-      document.getElementById('dimensao').value = '';
       document.getElementById('resultado').innerHTML = '';
+      document.getElementById('tolerancia').innerHTML = '';
     }
   </script>
-
 </body>
 </html>
