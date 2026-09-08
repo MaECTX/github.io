@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Plano de Corte Otimizado - Fibra</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
+h1 { color: #2c3e50; text-align: center; }
+h3 { margin-top: 25px; }
+input { width: 100px; margin: 2px 5px 2px 0; padding: 4px; border-radius: 4px; border: 1px solid #ccc; }
+label { display: inline-block; margin-bottom: 5px; font-weight: bold; color: #34495e; }
+button { margin-top: 15px; padding: 7px 20px; background: #27ae60; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+button:hover { background: #2ecc71; }
+#canvasContainer { margin-top: 20px; text-align: center; }
+canvas { border: 2px solid #34495e; background: #fff; border-radius: 5px; max-width: 100%; height: auto; }
+table { border-collapse: collapse; margin-top: 15px; width: 70%; }
+th, td { border: 1px solid #34495e; padding: 6px 12px; }
+th { background: #34495e; color: #fff; }
+footer { margin-top: 30px; font-size: 10px; text-align: center; color: #7f8c8d; }
+</style>
+</head>
+<body>
+
+<h1>Plano de Corte Otimizado - Fibra</h1>
+
+<h3>Entrada de dados</h3>
+<div>
+<label>Largura da chapa (mm): <input id="larguraChapa" type="number" value=""></label>
+<label>Comprimento da chapa (mm): <input id="comprimentoChapa" type="number" value=""></label>
+<label>Largura da peça (mm): <input id="larguraPeca" type="number" value=""></label>
+<label>Comprimento da peça (mm): <input id="comprimentoPeca" type="number" value=""></label>
+<label>Espessura da serra / kerf (mm): <input id="kerf" type="number" value="6"></label>
+<label>Quantidade de peças: <input id="quantidadePecas" type="number" value=""></label>
+</div>
+
+<button onclick="calcular()">Calcular Plano de Corte</button>
+<button onclick="exportarPDF()">Exportar PDF</button>
+
+<h3>Resultados</h3>
+<div id="resultado"></div>
+
+<h3>LAYOUT</h3>
+<div id="canvasContainer">
+  <canvas id="layoutCanvas" width="1200" height="700"></canvas>
+</div>
+
+<footer>
+desenvolvido por Matheus Felipe
+</footer>
+
+<script>
+let resultadoGlobal = null;
+
+function calcular() {
+    let Lc = parseFloat(document.getElementById('larguraChapa').value);
+    let Cc = parseFloat(document.getElementById('comprimentoChapa').value);
+    let Lp = parseFloat(document.getElementById('larguraPeca').value);
+    let Cp = parseFloat(document.getElementById('comprimentoPeca').value);
+    let kerf = parseFloat(document.getElementById('kerf').value);
+    let quantidade = parseInt(document.getElementById('quantidadePecas').value);
+
+    if(!Lc || !Cc || !Lp || !Cp || !kerf || !quantidade){
+        alert("Preencha todos os campos antes de calcular.");
+        return;
+    }
+
+    function calcularPeças(Lc, Cc, Lp, Cp, kerf) {
+        let pecasLargura = Math.floor((Lc + kerf)/(Lp + kerf));
+        let pecasComprimento = Math.floor((Cc + kerf)/(Cp + kerf));
+
+        // Se a peça não cabe nem uma vez
+        if(pecasLargura <= 0 || pecasComprimento <= 0){
+            return {pecasLargura:0, pecasComprimento:0, cortesLargura:0, cortesComprimento:0, sobraLargura:Lc, sobraComprimento:Cc, pecasPorChapa:0};
+        }
+
+        let cortesLargura = pecasLargura + 1;
+        let cortesComprimento = pecasComprimento + 1;
+
+        let sobraLargura = Lc - (pecasLargura*Lp + cortesLargura*kerf);
+        let sobraComprimento = Cc - (pecasComprimento*Cp + cortesComprimento*kerf);
+        let pecasPorChapa = pecasLargura * pecasComprimento;
+
+        return {pecasLargura, pecasComprimento, cortesLargura, cortesComprimento, sobraLargura, sobraComprimento, pecasPorChapa};
+    }
+
+    let normal = calcularPeças(Lc, Cc, Lp, Cp, kerf);
+    let rotada = calcularPeças(Lc, Cc, Cp, Lp, kerf);
+
+    if(normal.pecasPorChapa === 0 && rotada.pecasPorChapa === 0){
+        alert("A peça não cabe na chapa nem girada!");
+        return;
+    }
+
+    let melhor = (rotada.pecasPorChapa > normal.pecasPorChapa) ? rotada : normal;
+    let girada = melhor === rotada;
+
+    let chapasNecessarias = Math.ceil(quantidade / melhor.pecasPorChapa);
+    let areaChapa = Lc * Cc;
+    let areaPecas = (girada ? Cp*Lp : Lp*Cp) * melhor.pecasPorChapa;
+    let aproveitamento = (areaPecas / areaChapa * 100).toFixed(2);
+
+    resultadoGlobal = {Lc, Cc, Lp, Cp, kerf, quantidade, melhor, girada, chapasNecessarias, aproveitamento};
+
+    document.getElementById('resultado').innerHTML = `
+        <table>
+        <tr><th>Peças por chapa</th><td>${melhor.pecasPorChapa}</td></tr>
+        <tr><th>Peças na largura (vertical)</th><td>${melhor.pecasLargura}</td></tr>
+        <tr><th>Peças no comprimento (horizontal)</th><td>${melhor.pecasComprimento}</td></tr>
+        <tr><th>Chapas necessárias</th><td>${chapasNecessarias}</td></tr>
+        <tr><th>Aproveitamento (%)</th><td>${aproveitamento}%</td></tr>
+        <tr><th>Sobra largura (mm)</th><td>${melhor.sobraLargura}</td></tr>
+        <tr><th>Sobra comprimento (mm)</th><td>${melhor.sobraComprimento}</td></tr>
+        <tr><th>Peças giradas 90°</th><td>${girada ? "Sim" : "Não"}</td></tr>
+        </table>
+    `;
+
+    desenharLayout(Lc, Cc, girada? Cp: Lp, girada? Lp:Cp, kerf, melhor);
+}
+
+function desenharLayout(Lc, Cc, pw, ph, kerf, melhor){
+    let canvas = document.getElementById('layoutCanvas');
+    let ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    let scale = Math.min(canvas.width/Cc, canvas.height/Lc) * 0.9;
+
+    ctx.fillStyle = "#fefefe";
+    ctx.fillRect(0,0,Cc*scale,Lc*scale);
+    ctx.strokeStyle = "#34495e";
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(0,0,Cc*scale,Lc*scale);
+
+    ctx.font = "12px Arial";
+    ctx.textAlign = "center";
+
+    // Desenhar peças
+    let yPos = kerf*scale;
+    for(let i=0;i<melhor.pecasLargura;i++){
+        let xPos = kerf*scale;
+        for(let j=0;j<melhor.pecasComprimento;j++){
+            ctx.fillStyle = "#2ecc71";
+            ctx.strokeStyle = "#27ae60";
+            ctx.fillRect(xPos, yPos, ph*scale, pw*scale);
+            ctx.strokeRect(xPos, yPos, ph*scale, pw*scale);
+
+            ctx.fillStyle="#000000"; // TEXTO PRETO
+            ctx.fillText(`${ph}×${pw}`, xPos + ph*scale/2, yPos + pw*scale/2 + 4);
+
+            xPos += (ph + kerf)*scale;
+        }
+        yPos += (pw + kerf)*scale;
+    }
+
+    // Sobra na largura
+    if(melhor.sobraLargura>0){
+        ctx.fillStyle="#e74c3c";
+        let yStart = melhor.pecasLargura*(pw + kerf)*scale + kerf*scale;
+        ctx.fillRect(0, yStart, Cc*scale, melhor.sobraLargura*scale);
+        ctx.strokeRect(0, yStart, Cc*scale, melhor.sobraLargura*scale);
+        ctx.fillStyle="#000000"; 
+        ctx.fillText(`${Cc}×${melhor.sobraLargura}`, Cc*scale/2, yStart + melhor.sobraLargura*scale/2 + 4);
+    }
+
+    // Sobra no comprimento
+    if(melhor.sobraComprimento>0){
+        ctx.fillStyle="#3498db";
+        let xStart = melhor.pecasComprimento*(ph + kerf)*scale + kerf*scale;
+        ctx.fillRect(xStart, 0, melhor.sobraComprimento*scale, Lc*scale);
+        ctx.strokeRect(xStart, 0, melhor.sobraComprimento*scale, Lc*scale);
+        ctx.fillStyle="#000000"; 
+        ctx.fillText(`${melhor.sobraComprimento}×${Lc}`, xStart + melhor.sobraComprimento*scale/2, Lc*scale/2 + 4);
+    }
+}
+
+function exportarPDF(){
+    if(!resultadoGlobal){
+        alert("Calcule o plano de corte antes de exportar o PDF.");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    let pdf = new jsPDF('l', 'mm', 'a4');
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const footerHeight = 12;
+    const margin = 10;
+    let y = 25;
+
+    pdf.setFontSize(16);
+    pdf.text("Plano de Corte Otimizado - Fibra", pageWidth/2, y, {align:"center"});
+    y += 10;
+
+    pdf.setFontSize(12);
+    const lineSpacing = 7;
+
+    pdf.text(`Largura da chapa: ${resultadoGlobal.Lc} mm`, margin, y); y += lineSpacing;
+    pdf.text(`Comprimento da chapa: ${resultadoGlobal.Cc} mm`, margin, y); y += lineSpacing;
+    pdf.text(`Largura da peça: ${resultadoGlobal.Lp} mm`, margin, y); y += lineSpacing;
+    pdf.text(`Comprimento da peça: ${resultadoGlobal.Cp} mm`, margin, y); y += lineSpacing;
+    pdf.text(`Kerf: ${resultadoGlobal.kerf} mm`, margin, y); y += lineSpacing;
+    pdf.text(`Quantidade de peças: ${resultadoGlobal.quantidade}`, margin, y); y += lineSpacing + 3;
+
+    pdf.autoTable({
+        startY: y,
+        head: [['Peças por chapa','Peças largura','Peças comprimento','Chapas necessárias','Aproveitamento %','Sobra largura','Sobra comprimento','Peças giradas']],
+        body: [[
+            resultadoGlobal.melhor.pecasPorChapa,
+            resultadoGlobal.melhor.pecasLargura,
+            resultadoGlobal.melhor.pecasComprimento,
+            resultadoGlobal.chapasNecessarias,
+            resultadoGlobal.aproveitamento,
+            resultadoGlobal.melhor.sobraLargura,
+            resultadoGlobal.melhor.sobraComprimento,
+            resultadoGlobal.girada ? 'Sim':'Não'
+        ]],
+        styles: { fontSize: 10, cellPadding: 2 },
+        margin: { left: margin, right: margin },
+    });
+
+    y = pdf.lastAutoTable.finalY + 5;
+    const maxLayoutHeight = pageHeight - y - footerHeight - margin;
+
+    let canvas = document.getElementById('layoutCanvas');
+    let imgData = canvas.toDataURL('image/png');
+
+    let layoutWidth = pageWidth - 2*margin;
+    let layoutHeight = Math.min((canvas.height/canvas.width)*layoutWidth, maxLayoutHeight);
+
+    pdf.addImage(imgData, 'PNG', margin, y, layoutWidth, layoutHeight);
+
+    pdf.setFontSize(8);
+    pdf.text("desenvolvido por Matheus Felipe", pageWidth/2, pageHeight - 6, {align:"center"});
+
+    pdf.save("Plano_Corte.pdf");
+}
+</script>
+
+</body>
+</html>
